@@ -6,7 +6,7 @@ Demo and Video on Real Time Data Ingestion using NiFi, Elasticsearch, Kafka, and
 
 VIDEO Below:
 
-[![DEMO VIDEO](https://github.com/ayushhub/RealTimeDataFlow/blob/master/3.jpg)](https://youtu.be/MLWtNL0qYY8 "DEMO VIDEO")
+[![DEMO VIDEO](https://github.com/ayushhub/RealTimeDataFlow/blob/master/DemoThumb.jpg)](https://youtu.be/MLWtNL0qYY8 "DEMO VIDEO")
 
 GOALS:
 
@@ -18,3 +18,5 @@ e) Create Consumers in Kafka
 f) Understand Apache Storm Architecture
 g) Create Spouts and Bolts in Storm
 h) Persist data from Storm into Hive and HBase
+
+[![DASHBOARD](https://github.com/ayushhub/RealTimeDataFlow/blob/master/Dashboard.png)]
