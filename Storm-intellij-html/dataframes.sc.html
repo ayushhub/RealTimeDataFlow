@@ -1,0 +1,101 @@
+<html>
+<head>
+<title>dataframes.sc</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: #999999; font-weight: normal; font-style: normal; }
+.s0 { color: rgb(0,0,0); }
+</style>
+</head>
+<BODY BGCOLOR="#ffffff">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+dataframes.sc</FONT>
+</center></TD></TR></TABLE>
+<pre>
+<a name="l1"><span class="ln">1    </span></a><span class="s0">package com.vishnu.spark.basics 
+<a name="l2"><span class="ln">2    </span></a> 
+<a name="l3"><span class="ln">3    </span></a>import org.apache.spark.SparkContext 
+<a name="l4"><span class="ln">4    </span></a>import org.apache.spark.SparkConf 
+<a name="l5"><span class="ln">5    </span></a>import org.apache.spark.sql.SQLContext 
+<a name="l6"><span class="ln">6    </span></a>import org.apache.spark.sql._ 
+<a name="l7"><span class="ln">7    </span></a>import org.apache.spark.sql.types._ 
+<a name="l8"><span class="ln">8    </span></a>import org.apache.spark.sql.functions.udf 
+<a name="l9"><span class="ln">9    </span></a> 
+<a name="l10"><span class="ln">10   </span></a> 
+<a name="l11"><span class="ln">11   </span></a> 
+<a name="l12"><span class="ln">12   </span></a>object dataframes { 
+<a name="l13"><span class="ln">13   </span></a> 
+<a name="l14"><span class="ln">14   </span></a>        println(&quot;Welcome to the Scala worksheet&quot;) 
+<a name="l15"><span class="ln">15   </span></a>      val conf = new SparkConf().setAppName(&quot;dataframe-test&quot;).setMaster(&quot;spark://Vishnus-MacBook-Pro.local:7077&quot;) 
+<a name="l16"><span class="ln">16   </span></a>        val sc = new SparkContext(conf) 
+<a name="l17"><span class="ln">17   </span></a>        val sqlContext = new SQLContext(sc) 
+<a name="l18"><span class="ln">18   </span></a>         
+<a name="l19"><span class="ln">19   </span></a>        import sqlContext.implicits._ 
+<a name="l20"><span class="ln">20   </span></a>         
+<a name="l21"><span class="ln">21   </span></a>        case class Auctions(aucid:String, bid:Float,bidtime:Float,bidder:String,bidrate:Int,openbid:Float, price:Float,itemtype:String,dtl:Int) 
+<a name="l22"><span class="ln">22   </span></a>         
+<a name="l23"><span class="ln">23   </span></a>        val auctionRDD = sc.textFile(&quot;/user/vishnu/mapr/dev360/auctiondata.csv&quot;).map(_.split(&quot;,&quot;)) 
+<a name="l24"><span class="ln">24   </span></a>        val auctions = auctionRDD.map(a=&gt;Auctions(a(0),a(1).toFloat,a(2).toFloat,a(3),a(4).toInt,a(5).toFloat,a(6).toFloat,a(7),a(8).toInt)) 
+<a name="l25"><span class="ln">25   </span></a>        val auctionsDF = auctions.toDF() 
+<a name="l26"><span class="ln">26   </span></a>        auctionsDF.registerTempTable(&quot;auctionsDF&quot;) 
+<a name="l27"><span class="ln">27   </span></a>         
+<a name="l28"><span class="ln">28   </span></a>        //auctionsDF.groupBy(&quot;itemtype&quot;, &quot;aucid&quot;).count.agg(min(&quot;count&quot;), avg(&quot;count&quot;), max(&quot;count&quot;)).show 
+<a name="l29"><span class="ln">29   </span></a>         
+<a name="l30"><span class="ln">30   </span></a>        auctionsDF.filter(auctionsDF(&quot;price&quot;)&gt;150).show 
+<a name="l31"><span class="ln">31   </span></a>         
+<a name="l32"><span class="ln">32   </span></a>        //second course 
+<a name="l33"><span class="ln">33   </span></a>        val sfpd = sc.textFile(&quot;/user/vishnu/mapr/dev361/sfpd.csv&quot;).map(_.split(&quot;,&quot;)) 
+<a name="l34"><span class="ln">34   </span></a>        case class Incidents(incidentnum:String, category:String, description:String, dayofweek:String, date:String, time:String, pddistrict:String, resolution:String, address:String, X:Float, Y:Float, pdid:String) 
+<a name="l35"><span class="ln">35   </span></a>        val sfpdCase = sfpd.map(x=&gt;Incidents(x(0),x(1),x(2),x(3),x(4),x(5),x(6),x(7),x(8),x(9).toFloat,x(10).toFloat,x(11))) 
+<a name="l36"><span class="ln">36   </span></a>        val sfpdDF = sfpdCase.toDF 
+<a name="l37"><span class="ln">37   </span></a>        sfpdDF.registerTempTable(&quot;sfpd&quot;) 
+<a name="l38"><span class="ln">38   </span></a>         
+<a name="l39"><span class="ln">39   </span></a>        val testsch = StructType(Array(StructField(&quot;IncNum&quot;,StringType,true),StructField(&quot;Date&quot;,StringType,true), 
+<a name="l40"><span class="ln">40   </span></a>        StructField(&quot;District&quot;,StringType,true))) 
+<a name="l41"><span class="ln">41   </span></a>         
+<a name="l42"><span class="ln">42   </span></a>         
+<a name="l43"><span class="ln">43   </span></a>        //depricated 
+<a name="l44"><span class="ln">44   </span></a>        //val sfpdjson = sqlContext.load(&quot;/user/vishnu/mapr/dev361/sfpd.json&quot;,&quot;json&quot;) 
+<a name="l45"><span class="ln">45   </span></a>         
+<a name="l46"><span class="ln">46   </span></a>        //correct way from spark 1.4 
+<a name="l47"><span class="ln">47   </span></a>        val sfpdjson = sqlContext.read.format(&quot;json&quot;).load(&quot;/user/vishnu/mapr/dev361/sfpd.json&quot;) 
+<a name="l48"><span class="ln">48   </span></a>         
+<a name="l49"><span class="ln">49   </span></a>        sfpdDF.groupBy(&quot;pddistrict&quot;).count.sort($&quot;count&quot;.desc).show(5) 
+<a name="l50"><span class="ln">50   </span></a>        sfpdDF.groupBy(&quot;resolution&quot;).count.sort($&quot;count&quot;.desc).show(10) 
+<a name="l51"><span class="ln">51   </span></a>         val top10ResSQl = sqlContext.sql(&quot;SELECT resolution,count(incidentnum) as count from sfpd group by resolution order by count desc limit 10&quot;) 
+<a name="l52"><span class="ln">52   </span></a>         
+<a name="l53"><span class="ln">53   </span></a>        //save 
+<a name="l54"><span class="ln">54   </span></a>        //depricated 
+<a name="l55"><span class="ln">55   </span></a>        top10ResSQl.toJSON.saveAsTextFile(&quot;/user/vishnu/mapr/dev361/top10Res.json&quot;) 
+<a name="l56"><span class="ln">56   </span></a>         
+<a name="l57"><span class="ln">57   </span></a>        //correct way from spark 1.4 
+<a name="l58"><span class="ln">58   </span></a>        top10ResSQl.write.format(&quot;json&quot;).mode(&quot;overwrite&quot;).save(&quot;/user/vishnu/mapr/dev361/top10Res.json&quot;) 
+<a name="l59"><span class="ln">59   </span></a>         
+<a name="l60"><span class="ln">60   </span></a>        //creating udf (scala) 
+<a name="l61"><span class="ln">61   </span></a>        def getStr = udf((s:String)=&gt; { 
+<a name="l62"><span class="ln">62   </span></a>     val lastS = s.substring(s.lastIndexOf('/')+1) 
+<a name="l63"><span class="ln">63   </span></a>     lastS 
+<a name="l64"><span class="ln">64   </span></a>     }) 
+<a name="l65"><span class="ln">65   </span></a>      
+<a name="l66"><span class="ln">66   </span></a>      
+<a name="l67"><span class="ln">67   </span></a>     //inline usage of udf 
+<a name="l68"><span class="ln">68   </span></a>     val yy = sfpdDF.groupBy(getStr(sfpdDF(&quot;date&quot;))).count.show 
+<a name="l69"><span class="ln">69   </span></a>      
+<a name="l70"><span class="ln">70   </span></a>      
+<a name="l71"><span class="ln">71   </span></a>     //define function and register it as udf 
+<a name="l72"><span class="ln">72   </span></a>     def getStr(s:String) = { 
+<a name="l73"><span class="ln">73   </span></a>        val strAfter = s.substring(s.lastIndexOf('/')+1) 
+<a name="l74"><span class="ln">74   </span></a>        strAfter 
+<a name="l75"><span class="ln">75   </span></a>     } 
+<a name="l76"><span class="ln">76   </span></a>      
+<a name="l77"><span class="ln">77   </span></a>     //register as udf, we can use getStr in sql quries only if we regiter 
+<a name="l78"><span class="ln">78   </span></a>     sqlContext.udf.register(&quot;getStr&quot;,getStr _) 
+<a name="l79"><span class="ln">79   </span></a>      
+<a name="l80"><span class="ln">80   </span></a>     //using getStr in sql 
+<a name="l81"><span class="ln">81   </span></a>     sqlContext.sql(&quot;SELECT getStr(date),count(incidentnum) as count from sfpd GROUP BY getStr(date) ORDER BY count DESC limit 5&quot;) 
+<a name="l82"><span class="ln">82   </span></a>      
+<a name="l83"><span class="ln">83   </span></a>}</span></pre>
+</body>
+</html>

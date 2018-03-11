@@ -1,0 +1,184 @@
+<html>
+<head>
+<title>DollarRecordReader.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: #999999; font-weight: normal; font-style: normal; }
+.s0 { color: rgb(0,0,128); font-weight: bold; }
+.s1 { color: rgb(0,0,0); }
+.s2 { color: rgb(128,128,128); font-style: italic; }
+.s3 { color: rgb(128,128,128); font-weight: bold; font-style: italic; }
+.s4 { color: rgb(0,128,0); font-weight: bold; }
+.s5 { color: rgb(0,0,255); }
+</style>
+</head>
+<BODY BGCOLOR="#ffffff">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+DollarRecordReader.java</FONT>
+</center></TD></TR></TABLE>
+<pre>
+<a name="l1"><span class="ln">1    </span></a><span class="s0">package </span><span class="s1">com.vishnuviswanath.examples.customtypes; 
+<a name="l2"><span class="ln">2    </span></a> 
+<a name="l3"><span class="ln">3    </span></a></span><span class="s0">import </span><span class="s1">java.io.IOException; 
+<a name="l4"><span class="ln">4    </span></a></span><span class="s0">import </span><span class="s1">java.util.regex.Matcher; 
+<a name="l5"><span class="ln">5    </span></a></span><span class="s0">import </span><span class="s1">java.util.regex.Pattern; 
+<a name="l6"><span class="ln">6    </span></a> 
+<a name="l7"><span class="ln">7    </span></a></span><span class="s0">import </span><span class="s1">org.apache.hadoop.conf.Configuration; 
+<a name="l8"><span class="ln">8    </span></a></span><span class="s0">import </span><span class="s1">org.apache.hadoop.io.LongWritable; 
+<a name="l9"><span class="ln">9    </span></a></span><span class="s0">import </span><span class="s1">org.apache.hadoop.io.Text; 
+<a name="l10"><span class="ln">10   </span></a></span><span class="s0">import </span><span class="s1">org.apache.hadoop.mapreduce.InputSplit; 
+<a name="l11"><span class="ln">11   </span></a></span><span class="s0">import </span><span class="s1">org.apache.hadoop.mapreduce.RecordReader; 
+<a name="l12"><span class="ln">12   </span></a></span><span class="s0">import </span><span class="s1">org.apache.hadoop.mapreduce.TaskAttemptContext; 
+<a name="l13"><span class="ln">13   </span></a></span><span class="s0">import </span><span class="s1">org.apache.hadoop.util.LineReader; 
+<a name="l14"><span class="ln">14   </span></a> 
+<a name="l15"><span class="ln">15   </span></a></span><span class="s2">/** 
+<a name="l16"><span class="ln">16   </span></a> * from : 
+<a name="l17"><span class="ln">17   </span></a> * http://hadoopi.wordpress.com/2013/05/27/understand-recordreader-inputsplit/ 
+<a name="l18"><span class="ln">18   </span></a> *  
+<a name="l19"><span class="ln">19   </span></a> * </span><span class="s3">@author </span><span class="s2">vishnu 
+<a name="l20"><span class="ln">20   </span></a> *  
+<a name="l21"><span class="ln">21   </span></a> */</span><span class="s1"> 
+<a name="l22"><span class="ln">22   </span></a> 
+<a name="l23"><span class="ln">23   </span></a></span><span class="s0">public class </span><span class="s1">DollarRecordReader </span><span class="s0">extends </span><span class="s1">RecordReader&lt;LongWritable, Text&gt; { 
+<a name="l24"><span class="ln">24   </span></a> 
+<a name="l25"><span class="ln">25   </span></a>    </span><span class="s0">private </span><span class="s1">LineReader in; 
+<a name="l26"><span class="ln">26   </span></a>    </span><span class="s0">private long </span><span class="s1">start; 
+<a name="l27"><span class="ln">27   </span></a>    </span><span class="s0">private long </span><span class="s1">pos; 
+<a name="l28"><span class="ln">28   </span></a>    </span><span class="s0">private long </span><span class="s1">end; 
+<a name="l29"><span class="ln">29   </span></a>    </span><span class="s0">private </span><span class="s1">LongWritable key = </span><span class="s0">new </span><span class="s1">LongWritable(); 
+<a name="l30"><span class="ln">30   </span></a>    </span><span class="s0">private final static </span><span class="s1">Text EOL = </span><span class="s0">new </span><span class="s1">Text(</span><span class="s4">&quot;</span><span class="s0">\n</span><span class="s4">&quot;</span><span class="s1">); 
+<a name="l31"><span class="ln">31   </span></a>    </span><span class="s0">private </span><span class="s1">Pattern delimiterPattern; 
+<a name="l32"><span class="ln">32   </span></a>    </span><span class="s0">private </span><span class="s1">String delimiterRegex; 
+<a name="l33"><span class="ln">33   </span></a>    </span><span class="s0">private int </span><span class="s1">maxLengthRecord; 
+<a name="l34"><span class="ln">34   </span></a>    </span><span class="s0">private </span><span class="s1">Text value = </span><span class="s0">new </span><span class="s1">Text(); 
+<a name="l35"><span class="ln">35   </span></a>    </span><span class="s0">private int </span><span class="s1">maxLineLength; 
+<a name="l36"><span class="ln">36   </span></a> 
+<a name="l37"><span class="ln">37   </span></a>    @Override 
+<a name="l38"><span class="ln">38   </span></a>    </span><span class="s0">public void </span><span class="s1">close() </span><span class="s0">throws </span><span class="s1">IOException { 
+<a name="l39"><span class="ln">39   </span></a>        </span><span class="s0">if </span><span class="s1">(in != </span><span class="s0">null</span><span class="s1">) { 
+<a name="l40"><span class="ln">40   </span></a>            in.close(); 
+<a name="l41"><span class="ln">41   </span></a>        } 
+<a name="l42"><span class="ln">42   </span></a> 
+<a name="l43"><span class="ln">43   </span></a>    } 
+<a name="l44"><span class="ln">44   </span></a> 
+<a name="l45"><span class="ln">45   </span></a>    @Override 
+<a name="l46"><span class="ln">46   </span></a>    </span><span class="s0">public </span><span class="s1">LongWritable getCurrentKey() </span><span class="s0">throws </span><span class="s1">IOException, 
+<a name="l47"><span class="ln">47   </span></a>            InterruptedException { 
+<a name="l48"><span class="ln">48   </span></a>        </span><span class="s0">return </span><span class="s1">key; 
+<a name="l49"><span class="ln">49   </span></a> 
+<a name="l50"><span class="ln">50   </span></a>    } 
+<a name="l51"><span class="ln">51   </span></a> 
+<a name="l52"><span class="ln">52   </span></a>    @Override 
+<a name="l53"><span class="ln">53   </span></a>    </span><span class="s0">public </span><span class="s1">Text getCurrentValue() </span><span class="s0">throws </span><span class="s1">IOException, InterruptedException { 
+<a name="l54"><span class="ln">54   </span></a>        </span><span class="s0">return </span><span class="s1">value; 
+<a name="l55"><span class="ln">55   </span></a>    } 
+<a name="l56"><span class="ln">56   </span></a> 
+<a name="l57"><span class="ln">57   </span></a>    @Override 
+<a name="l58"><span class="ln">58   </span></a>    </span><span class="s0">public float </span><span class="s1">getProgress() </span><span class="s0">throws </span><span class="s1">IOException, InterruptedException { 
+<a name="l59"><span class="ln">59   </span></a>        </span><span class="s0">if </span><span class="s1">(start == end) { 
+<a name="l60"><span class="ln">60   </span></a>            </span><span class="s0">return </span><span class="s5">0.0f</span><span class="s1">; 
+<a name="l61"><span class="ln">61   </span></a>        } </span><span class="s0">else </span><span class="s1">{ 
+<a name="l62"><span class="ln">62   </span></a>            </span><span class="s0">return </span><span class="s1">Math.min(</span><span class="s5">1.0f</span><span class="s1">, (pos - start) / (</span><span class="s0">float</span><span class="s1">) (end - start)); 
+<a name="l63"><span class="ln">63   </span></a>        } 
+<a name="l64"><span class="ln">64   </span></a>    } 
+<a name="l65"><span class="ln">65   </span></a> 
+<a name="l66"><span class="ln">66   </span></a>    @Override 
+<a name="l67"><span class="ln">67   </span></a>    </span><span class="s0">public void </span><span class="s1">initialize(InputSplit split, TaskAttemptContext context) 
+<a name="l68"><span class="ln">68   </span></a>            </span><span class="s0">throws </span><span class="s1">IOException, InterruptedException { 
+<a name="l69"><span class="ln">69   </span></a>        Configuration job = context.getConfiguration(); 
+<a name="l70"><span class="ln">70   </span></a>        </span><span class="s0">this</span><span class="s1">.delimiterRegex = </span><span class="s4">&quot;*$*&quot;</span><span class="s1">; 
+<a name="l71"><span class="ln">71   </span></a>        </span><span class="s0">this</span><span class="s1">.maxLengthRecord = job.getInt(</span><span class="s4">&quot;mapred.linerecordreader.maxlength&quot;</span><span class="s1">, 
+<a name="l72"><span class="ln">72   </span></a>                Integer.MAX_VALUE); 
+<a name="l73"><span class="ln">73   </span></a> 
+<a name="l74"><span class="ln">74   </span></a>        delimiterPattern = Pattern.compile(delimiterRegex); 
+<a name="l75"><span class="ln">75   </span></a> 
+<a name="l76"><span class="ln">76   </span></a>    } 
+<a name="l77"><span class="ln">77   </span></a> 
+<a name="l78"><span class="ln">78   </span></a>    @Override 
+<a name="l79"><span class="ln">79   </span></a>    </span><span class="s0">public boolean </span><span class="s1">nextKeyValue() </span><span class="s0">throws </span><span class="s1">IOException, InterruptedException { 
+<a name="l80"><span class="ln">80   </span></a>        </span><span class="s2">// TODO Auto-generated method stub</span><span class="s1"> 
+<a name="l81"><span class="ln">81   </span></a>        </span><span class="s2">// Current offset is the key</span><span class="s1"> 
+<a name="l82"><span class="ln">82   </span></a>        key.set(pos); 
+<a name="l83"><span class="ln">83   </span></a> 
+<a name="l84"><span class="ln">84   </span></a>        </span><span class="s0">int </span><span class="s1">newSize = </span><span class="s5">0</span><span class="s1">; 
+<a name="l85"><span class="ln">85   </span></a> 
+<a name="l86"><span class="ln">86   </span></a>        </span><span class="s2">// Make sure we get at least one record that starts in this Split</span><span class="s1"> 
+<a name="l87"><span class="ln">87   </span></a>        </span><span class="s0">while </span><span class="s1">(pos &lt; end) { 
+<a name="l88"><span class="ln">88   </span></a> 
+<a name="l89"><span class="ln">89   </span></a>            </span><span class="s2">// Read first line and store its content to &quot;value&quot;</span><span class="s1"> 
+<a name="l90"><span class="ln">90   </span></a>            newSize = readNext(value, maxLineLength, 
+<a name="l91"><span class="ln">91   </span></a>                    Math.max((</span><span class="s0">int</span><span class="s1">) Math.min(Integer.MAX_VALUE, end - pos), 
+<a name="l92"><span class="ln">92   </span></a>                            maxLineLength)); 
+<a name="l93"><span class="ln">93   </span></a> 
+<a name="l94"><span class="ln">94   </span></a>            </span><span class="s2">// No byte read, seems that we reached end of Split</span><span class="s1"> 
+<a name="l95"><span class="ln">95   </span></a>            </span><span class="s2">// Break and return false (no key / value)</span><span class="s1"> 
+<a name="l96"><span class="ln">96   </span></a>            </span><span class="s0">if </span><span class="s1">(newSize == </span><span class="s5">0</span><span class="s1">) { 
+<a name="l97"><span class="ln">97   </span></a>                </span><span class="s0">break</span><span class="s1">; 
+<a name="l98"><span class="ln">98   </span></a>            } 
+<a name="l99"><span class="ln">99   </span></a> 
+<a name="l100"><span class="ln">100  </span></a>            </span><span class="s2">// Line is read, new position is set</span><span class="s1"> 
+<a name="l101"><span class="ln">101  </span></a>            pos += newSize; 
+<a name="l102"><span class="ln">102  </span></a> 
+<a name="l103"><span class="ln">103  </span></a>            </span><span class="s2">// Line is lower than Maximum record line size</span><span class="s1"> 
+<a name="l104"><span class="ln">104  </span></a>            </span><span class="s2">// break and return true (found key / value)</span><span class="s1"> 
+<a name="l105"><span class="ln">105  </span></a>            </span><span class="s0">if </span><span class="s1">(newSize &lt; maxLineLength) { 
+<a name="l106"><span class="ln">106  </span></a>                </span><span class="s0">break</span><span class="s1">; 
+<a name="l107"><span class="ln">107  </span></a>            } 
+<a name="l108"><span class="ln">108  </span></a> 
+<a name="l109"><span class="ln">109  </span></a>            </span><span class="s2">// Line is too long</span><span class="s1"> 
+<a name="l110"><span class="ln">110  </span></a>            </span><span class="s2">// Try again with position = position + line offset,</span><span class="s1"> 
+<a name="l111"><span class="ln">111  </span></a>            </span><span class="s2">// i.e. ignore line and go to next one</span><span class="s1"> 
+<a name="l112"><span class="ln">112  </span></a>            </span><span class="s2">// TODO: Shouldn't it be LOG.error instead ??</span><span class="s1"> 
+<a name="l113"><span class="ln">113  </span></a>            System.out.println(</span><span class="s4">&quot;Skipped line of size &quot; </span><span class="s1">+ newSize + </span><span class="s4">&quot; at pos &quot;</span><span class="s1"> 
+<a name="l114"><span class="ln">114  </span></a>                    + (pos - newSize)); 
+<a name="l115"><span class="ln">115  </span></a>        } 
+<a name="l116"><span class="ln">116  </span></a> 
+<a name="l117"><span class="ln">117  </span></a>        </span><span class="s0">if </span><span class="s1">(newSize == </span><span class="s5">0</span><span class="s1">) { 
+<a name="l118"><span class="ln">118  </span></a>            </span><span class="s2">// We've reached end of Split</span><span class="s1"> 
+<a name="l119"><span class="ln">119  </span></a>            key = </span><span class="s0">null</span><span class="s1">; 
+<a name="l120"><span class="ln">120  </span></a>            value = </span><span class="s0">null</span><span class="s1">; 
+<a name="l121"><span class="ln">121  </span></a>            </span><span class="s0">return false</span><span class="s1">; 
+<a name="l122"><span class="ln">122  </span></a>        } </span><span class="s0">else </span><span class="s1">{ 
+<a name="l123"><span class="ln">123  </span></a>            </span><span class="s2">// Tell Hadoop a new line has been found</span><span class="s1"> 
+<a name="l124"><span class="ln">124  </span></a>            </span><span class="s2">// key / value will be retrieved by</span><span class="s1"> 
+<a name="l125"><span class="ln">125  </span></a>            </span><span class="s2">// getCurrentKey getCurrentValue methods</span><span class="s1"> 
+<a name="l126"><span class="ln">126  </span></a>            </span><span class="s0">return true</span><span class="s1">; 
+<a name="l127"><span class="ln">127  </span></a>        } 
+<a name="l128"><span class="ln">128  </span></a>    } 
+<a name="l129"><span class="ln">129  </span></a> 
+<a name="l130"><span class="ln">130  </span></a>    </span><span class="s0">private int </span><span class="s1">readNext(Text text, </span><span class="s0">int </span><span class="s1">maxLineLength, </span><span class="s0">int </span><span class="s1">maxBytesToConsume) 
+<a name="l131"><span class="ln">131  </span></a>            </span><span class="s0">throws </span><span class="s1">IOException { 
+<a name="l132"><span class="ln">132  </span></a> 
+<a name="l133"><span class="ln">133  </span></a>        </span><span class="s0">int </span><span class="s1">offset = </span><span class="s5">0</span><span class="s1">; 
+<a name="l134"><span class="ln">134  </span></a>        text.clear(); 
+<a name="l135"><span class="ln">135  </span></a>        Text tmp = </span><span class="s0">new </span><span class="s1">Text(); 
+<a name="l136"><span class="ln">136  </span></a> 
+<a name="l137"><span class="ln">137  </span></a>        </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s5">0</span><span class="s1">; i &lt; maxBytesToConsume; i++) { 
+<a name="l138"><span class="ln">138  </span></a> 
+<a name="l139"><span class="ln">139  </span></a>            </span><span class="s0">int </span><span class="s1">offsetTmp = in.readLine(tmp, maxLineLength, maxBytesToConsume); 
+<a name="l140"><span class="ln">140  </span></a>            offset += offsetTmp; 
+<a name="l141"><span class="ln">141  </span></a>            Matcher m = delimiterPattern.matcher(tmp.toString()); 
+<a name="l142"><span class="ln">142  </span></a> 
+<a name="l143"><span class="ln">143  </span></a>            </span><span class="s2">// End of File</span><span class="s1"> 
+<a name="l144"><span class="ln">144  </span></a>            </span><span class="s0">if </span><span class="s1">(offsetTmp == </span><span class="s5">0</span><span class="s1">) { 
+<a name="l145"><span class="ln">145  </span></a>                </span><span class="s0">break</span><span class="s1">; 
+<a name="l146"><span class="ln">146  </span></a>            } 
+<a name="l147"><span class="ln">147  </span></a> 
+<a name="l148"><span class="ln">148  </span></a>            </span><span class="s0">if </span><span class="s1">(m.matches()) { 
+<a name="l149"><span class="ln">149  </span></a>                </span><span class="s2">// Record delimiter</span><span class="s1"> 
+<a name="l150"><span class="ln">150  </span></a>                </span><span class="s0">break</span><span class="s1">; 
+<a name="l151"><span class="ln">151  </span></a>            } </span><span class="s0">else </span><span class="s1">{ 
+<a name="l152"><span class="ln">152  </span></a>                </span><span class="s2">// Append value to record</span><span class="s1"> 
+<a name="l153"><span class="ln">153  </span></a>                text.append(EOL.getBytes(), </span><span class="s5">0</span><span class="s1">, EOL.getLength()); 
+<a name="l154"><span class="ln">154  </span></a>                text.append(tmp.getBytes(), </span><span class="s5">0</span><span class="s1">, tmp.getLength()); 
+<a name="l155"><span class="ln">155  </span></a>            } 
+<a name="l156"><span class="ln">156  </span></a>        } 
+<a name="l157"><span class="ln">157  </span></a>        </span><span class="s0">return </span><span class="s1">offset; 
+<a name="l158"><span class="ln">158  </span></a>    } 
+<a name="l159"><span class="ln">159  </span></a> 
+<a name="l160"><span class="ln">160  </span></a>} 
+<a name="l161"><span class="ln">161  </span></a></span></pre>
+</body>
+</html>

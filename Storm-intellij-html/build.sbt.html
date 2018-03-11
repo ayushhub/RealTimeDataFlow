@@ -1,0 +1,85 @@
+<html>
+<head>
+<title>build.sbt</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: #999999; font-weight: normal; font-style: normal; }
+.s0 { color: rgb(0,0,0); }
+</style>
+</head>
+<BODY BGCOLOR="#ffffff">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+build.sbt</FONT>
+</center></TD></TR></TABLE>
+<pre>
+<a name="l1"><span class="ln">1    </span></a><span class="s0">val spark_mllib = &quot;org.apache.spark&quot; % &quot;spark-mllib_2.10&quot; % &quot;1.5.2&quot; % &quot;provided&quot; 
+<a name="l2"><span class="ln">2    </span></a>val spark_core = &quot;org.apache.spark&quot; % &quot;spark-core_2.10&quot; % &quot;1.5.2 &quot;% &quot;provided&quot; 
+<a name="l3"><span class="ln">3    </span></a>val spark_csv = &quot;com.databricks&quot; % &quot;spark-csv_2.10&quot; % &quot;1.2.0&quot; % &quot;provided&quot; 
+<a name="l4"><span class="ln">4    </span></a>val spark_streaming = &quot;org.apache.spark&quot; % &quot;spark-streaming_2.10&quot; % &quot;1.6.0&quot; % &quot;provided&quot;   
+<a name="l5"><span class="ln">5    </span></a>val kafka_core = &quot;org.apache.kafka&quot; % &quot;kafka_2.10&quot; % &quot;0.8.2.1&quot; 
+<a name="l6"><span class="ln">6    </span></a>val flume_streaming = &quot;org.apache.spark&quot; % &quot;spark-streaming-flume_2.10&quot; % &quot;1.6.0&quot;  exclude(&quot;org.spark-project.spark&quot;,  
+<a name="l7"><span class="ln">7    </span></a>&quot;unused&quot;) 
+<a name="l8"><span class="ln">8    </span></a>val kafka_streaming = &quot;org.apache.spark&quot; % &quot;spark-streaming-kafka_2.10&quot; % &quot;1.6.0&quot; 
+<a name="l9"><span class="ln">9    </span></a>val hbase_server = &quot;org.apache.hbase&quot; % &quot;hbase-server&quot; % &quot;1.1.4&quot; exclude(&quot;org.mortbay.jetty&quot;, &quot;jsp-2.1&quot;) 
+<a name="l10"><span class="ln">10   </span></a>val hbase_common  = &quot;org.apache.hbase&quot; % &quot;hbase-common&quot; % &quot;1.1.4&quot; 
+<a name="l11"><span class="ln">11   </span></a>val spark_hive =  &quot;org.apache.spark&quot; % &quot;spark-hive_2.10&quot; % &quot;1.5.2&quot; exclude(&quot;com.twitter&quot;,&quot;parquet-hadoop-bundle&quot;) 
+<a name="l12"><span class="ln">12   </span></a>val spark_mongodb = &quot;com.stratio&quot; % &quot;spark-mongodb&quot; % &quot;0.8.0&quot; 
+<a name="l13"><span class="ln">13   </span></a>val spark_mongodb_stratio = &quot;com.stratio.datasource&quot; % &quot;spark-mongodb_2.10&quot; % &quot;0.11.1&quot; 
+<a name="l14"><span class="ln">14   </span></a>val spark_avro = &quot;com.databricks&quot; %% &quot;spark-avro&quot; % &quot;1.0.0&quot; 
+<a name="l15"><span class="ln">15   </span></a> 
+<a name="l16"><span class="ln">16   </span></a> 
+<a name="l17"><span class="ln">17   </span></a> 
+<a name="l18"><span class="ln">18   </span></a>name := &quot;spark-vishnu&quot; 
+<a name="l19"><span class="ln">19   </span></a> 
+<a name="l20"><span class="ln">20   </span></a>lazy val commonSettings = Seq( 
+<a name="l21"><span class="ln">21   </span></a>  organization := &quot;com.vishnu&quot;, 
+<a name="l22"><span class="ln">22   </span></a>  version := &quot;1.0&quot;, 
+<a name="l23"><span class="ln">23   </span></a>  scalaVersion := &quot;2.10.5&quot; 
+<a name="l24"><span class="ln">24   </span></a>) 
+<a name="l25"><span class="ln">25   </span></a> 
+<a name="l26"><span class="ln">26   </span></a>lazy val root = (project in file(&quot;.&quot;)). 
+<a name="l27"><span class="ln">27   </span></a>  settings(commonSettings:_*). 
+<a name="l28"><span class="ln">28   </span></a>  settings( 
+<a name="l29"><span class="ln">29   </span></a>    name := &quot;spark_examples&quot;, 
+<a name="l30"><span class="ln">30   </span></a>    libraryDependencies += spark_mllib, 
+<a name="l31"><span class="ln">31   </span></a>    libraryDependencies += spark_core, 
+<a name="l32"><span class="ln">32   </span></a>    libraryDependencies += spark_csv, 
+<a name="l33"><span class="ln">33   </span></a>    libraryDependencies += spark_streaming, 
+<a name="l34"><span class="ln">34   </span></a>    libraryDependencies += flume_streaming, 
+<a name="l35"><span class="ln">35   </span></a>    libraryDependencies += kafka_streaming, 
+<a name="l36"><span class="ln">36   </span></a>    libraryDependencies += kafka_core, 
+<a name="l37"><span class="ln">37   </span></a>    libraryDependencies += hbase_server, 
+<a name="l38"><span class="ln">38   </span></a>    libraryDependencies += hbase_common, 
+<a name="l39"><span class="ln">39   </span></a>    libraryDependencies += spark_hive, 
+<a name="l40"><span class="ln">40   </span></a>    libraryDependencies += spark_mongodb, 
+<a name="l41"><span class="ln">41   </span></a>    libraryDependencies += spark_mongodb_stratio, 
+<a name="l42"><span class="ln">42   </span></a>    libraryDependencies += spark_avro, 
+<a name="l43"><span class="ln">43   </span></a>     
+<a name="l44"><span class="ln">44   </span></a>    retrieveManaged := true 
+<a name="l45"><span class="ln">45   </span></a>  ) 
+<a name="l46"><span class="ln">46   </span></a> 
+<a name="l47"><span class="ln">47   </span></a> 
+<a name="l48"><span class="ln">48   </span></a>val excludedFiles = Seq(&quot;pom.xml&quot;, &quot;pom.properties&quot;, &quot;manifest.mf&quot;, &quot;package-info.class&quot;,&quot;plugin.xml&quot;) 
+<a name="l49"><span class="ln">49   </span></a> 
+<a name="l50"><span class="ln">50   </span></a>mergeStrategy in assembly &lt;&lt;= (mergeStrategy in assembly) { (old) =&gt; 
+<a name="l51"><span class="ln">51   </span></a>  { 
+<a name="l52"><span class="ln">52   </span></a>    case PathList(&quot;javax&quot;, &quot;servlet&quot;, xs @ _*)         =&gt; MergeStrategy.first 
+<a name="l53"><span class="ln">53   </span></a>    case PathList(&quot;jetty&quot;, &quot;jsp&quot;, xs @ _*)         =&gt; MergeStrategy.first 
+<a name="l54"><span class="ln">54   </span></a>    case x if x.contains(&quot;w3c&quot;) =&gt; MergeStrategy.first 
+<a name="l55"><span class="ln">55   </span></a>    case x if x.contains(&quot;commons&quot;) =&gt; MergeStrategy.first 
+<a name="l56"><span class="ln">56   </span></a>    case x if x.contains(&quot;javax/xml/&quot;) =&gt; MergeStrategy.first 
+<a name="l57"><span class="ln">57   </span></a>    case x if x.contains(&quot;minlog&quot;) =&gt; MergeStrategy.first 
+<a name="l58"><span class="ln">58   </span></a>    case x if x.contains(&quot;unused&quot;) =&gt; MergeStrategy.last 
+<a name="l59"><span class="ln">59   </span></a>    case x if x.contains(&quot;html&quot;) =&gt; MergeStrategy.discard  
+<a name="l60"><span class="ln">60   </span></a>    case x if x.startsWith(&quot;com/google/common/base/&quot;) =&gt; MergeStrategy.first 
+<a name="l61"><span class="ln">61   </span></a>    case &quot;application.conf&quot; =&gt; MergeStrategy.concat 
+<a name="l62"><span class="ln">62   </span></a>    case x if excludedFiles.exists(x.endsWith(_)) =&gt; MergeStrategy.discard 
+<a name="l63"><span class="ln">63   </span></a>    case x =&gt; old(x) 
+<a name="l64"><span class="ln">64   </span></a>  } 
+<a name="l65"><span class="ln">65   </span></a>} 
+<a name="l66"><span class="ln">66   </span></a> 
+<a name="l67"><span class="ln">67   </span></a></span></pre>
+</body>
+</html>

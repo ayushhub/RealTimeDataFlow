@@ -1,0 +1,47 @@
+<html>
+<head>
+<title>ProcessingTimeWindowWithTrigger.scala</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: #999999; font-weight: normal; font-style: normal; }
+.s0 { color: rgb(0,0,0); }
+</style>
+</head>
+<BODY BGCOLOR="#ffffff">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+ProcessingTimeWindowWithTrigger.scala</FONT>
+</center></TD></TR></TABLE>
+<pre>
+<a name="l1"><span class="ln">1    </span></a><span class="s0">package com.vishnu.flink.streaming 
+<a name="l2"><span class="ln">2    </span></a> 
+<a name="l3"><span class="ln">3    </span></a>import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment 
+<a name="l4"><span class="ln">4    </span></a>import org.apache.flink.api.scala._ 
+<a name="l5"><span class="ln">5    </span></a>import org.apache.flink.streaming.api.windowing.time.Time 
+<a name="l6"><span class="ln">6    </span></a>import org.apache.flink.streaming.api.windowing.assigners.{SlidingProcessingTimeWindows} 
+<a name="l7"><span class="ln">7    </span></a>import org.apache.flink.streaming.api.windowing.evictors.{CountEvictor} 
+<a name="l8"><span class="ln">8    </span></a> 
+<a name="l9"><span class="ln">9    </span></a>import org.apache.flink.streaming.api.windowing.triggers.CountTrigger 
+<a name="l10"><span class="ln">10   </span></a> 
+<a name="l11"><span class="ln">11   </span></a>object ProcessingTimeWindowWithTrigger { 
+<a name="l12"><span class="ln">12   </span></a>  def main(args: Array[String]) { 
+<a name="l13"><span class="ln">13   </span></a>    val sev = StreamExecutionEnvironment.getExecutionEnvironment 
+<a name="l14"><span class="ln">14   </span></a>    val socTextStream = sev.socketTextStream(&quot;localhost&quot;,4444) 
+<a name="l15"><span class="ln">15   </span></a> 
+<a name="l16"><span class="ln">16   </span></a>    //a window of size 20 seconds is created, window slides every 10 seconds 
+<a name="l17"><span class="ln">17   </span></a>    //execution of window is triggered when there are 3 elements in the window 
+<a name="l18"><span class="ln">18   </span></a>    val counts = socTextStream.flatMap{_.split(&quot;\\s&quot;)} 
+<a name="l19"><span class="ln">19   </span></a>      .map { (_, 1) } 
+<a name="l20"><span class="ln">20   </span></a>        .keyBy(0) 
+<a name="l21"><span class="ln">21   </span></a>        .window(SlidingProcessingTimeWindows.of(Time.seconds(15),Time.seconds(10))) 
+<a name="l22"><span class="ln">22   </span></a>      .trigger(CountTrigger.of(5)) 
+<a name="l23"><span class="ln">23   </span></a>      .sum(1).setParallelism(4); 
+<a name="l24"><span class="ln">24   </span></a> 
+<a name="l25"><span class="ln">25   </span></a>    counts.print() 
+<a name="l26"><span class="ln">26   </span></a>    sev.execute() 
+<a name="l27"><span class="ln">27   </span></a>  } 
+<a name="l28"><span class="ln">28   </span></a>} 
+<a name="l29"><span class="ln">29   </span></a></span></pre>
+</body>
+</html>

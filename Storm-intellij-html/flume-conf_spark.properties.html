@@ -1,0 +1,55 @@
+<html>
+<head>
+<title>flume-conf_spark.properties</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: #999999; font-weight: normal; font-style: normal; }
+.s0 { color: rgb(128,128,128); font-style: italic; }
+.s1 { color: rgb(0,0,0); }
+.s2 { color: rgb(0,0,128); font-weight: bold; }
+.s3 { color: rgb(0,128,0); font-weight: bold; }
+</style>
+</head>
+<BODY BGCOLOR="#ffffff">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+flume-conf_spark.properties</FONT>
+</center></TD></TR></TABLE>
+<pre>
+<a name="l1"><span class="ln">1    </span></a><span class="s0"># Flume configuration to listen to netcat host and port,</span><span class="s1"> 
+<a name="l2"><span class="ln">2    </span></a></span><span class="s0"># sink is of the type avro</span><span class="s1"> 
+<a name="l3"><span class="ln">3    </span></a></span><span class="s0"># Created for testing spark streaming from flume</span><span class="s1"> 
+<a name="l4"><span class="ln">4    </span></a></span><span class="s0"># @author vishnu viswanath</span><span class="s1"> 
+<a name="l5"><span class="ln">5    </span></a> 
+<a name="l6"><span class="ln">6    </span></a></span><span class="s2">agent.sources </span><span class="s1">= </span><span class="s3">Netcat</span><span class="s1"> 
+<a name="l7"><span class="ln">7    </span></a></span><span class="s2">agent.channels </span><span class="s1">= </span><span class="s3">memoryChannel</span><span class="s1"> 
+<a name="l8"><span class="ln">8    </span></a></span><span class="s2">agent.sinks </span><span class="s1">= </span><span class="s3">avroSink</span><span class="s1"> 
+<a name="l9"><span class="ln">9    </span></a></span><span class="s0">#agent.sinks = loggerSink</span><span class="s1"> 
+<a name="l10"><span class="ln">10   </span></a> 
+<a name="l11"><span class="ln">11   </span></a></span><span class="s0"># For each one of the sources, the type is defined</span><span class="s1"> 
+<a name="l12"><span class="ln">12   </span></a></span><span class="s2">agent.sources.Netcat.type </span><span class="s1">= </span><span class="s3">netcat</span><span class="s1"> 
+<a name="l13"><span class="ln">13   </span></a></span><span class="s2">agent.sources.Netcat.bind </span><span class="s1">= </span><span class="s3">localhost</span><span class="s1"> 
+<a name="l14"><span class="ln">14   </span></a></span><span class="s2">agent.sources.Netcat.port </span><span class="s1">= </span><span class="s3">6666</span><span class="s1"> 
+<a name="l15"><span class="ln">15   </span></a></span><span class="s2">agent.sources.Netcat.channels </span><span class="s1">= </span><span class="s3">memoryChannel</span><span class="s1"> 
+<a name="l16"><span class="ln">16   </span></a> 
+<a name="l17"><span class="ln">17   </span></a></span><span class="s0"># avro sink for spark</span><span class="s1"> 
+<a name="l18"><span class="ln">18   </span></a></span><span class="s2">agent.sinks.avroSink.type </span><span class="s1">= </span><span class="s3">avro</span><span class="s1"> 
+<a name="l19"><span class="ln">19   </span></a></span><span class="s2">agent.sinks.avroSink.channel </span><span class="s1">= </span><span class="s3">memoryChannel</span><span class="s1"> 
+<a name="l20"><span class="ln">20   </span></a></span><span class="s2">agent.sinks.avroSink.hostname </span><span class="s1">= </span><span class="s3">localhost</span><span class="s1"> 
+<a name="l21"><span class="ln">21   </span></a></span><span class="s2">agent.sinks.avroSink.port </span><span class="s1">= </span><span class="s3">4444</span><span class="s1"> 
+<a name="l22"><span class="ln">22   </span></a> 
+<a name="l23"><span class="ln">23   </span></a></span><span class="s0">#logger sink</span><span class="s1"> 
+<a name="l24"><span class="ln">24   </span></a></span><span class="s0">#agent.sinks.loggerSink.type = logger</span><span class="s1"> 
+<a name="l25"><span class="ln">25   </span></a></span><span class="s0">#agent.sinks.loggerSink.channel = memoryChannel</span><span class="s1"> 
+<a name="l26"><span class="ln">26   </span></a> 
+<a name="l27"><span class="ln">27   </span></a></span><span class="s0"># Each channel's type is defined.</span><span class="s1"> 
+<a name="l28"><span class="ln">28   </span></a></span><span class="s2">agent.channels.memoryChannel.type </span><span class="s1">= </span><span class="s3">memory</span><span class="s1"> 
+<a name="l29"><span class="ln">29   </span></a> 
+<a name="l30"><span class="ln">30   </span></a></span><span class="s0"># Other config values specific to each type of channel(sink or source)</span><span class="s1"> 
+<a name="l31"><span class="ln">31   </span></a></span><span class="s0"># can be defined as well</span><span class="s1"> 
+<a name="l32"><span class="ln">32   </span></a></span><span class="s0"># In this case, it specifies the capacity of the memory channel</span><span class="s1"> 
+<a name="l33"><span class="ln">33   </span></a></span><span class="s2">agent.channels.memoryChannel.capacity </span><span class="s1">= </span><span class="s3">100</span><span class="s1"> 
+<a name="l34"><span class="ln">34   </span></a></span></pre>
+</body>
+</html>

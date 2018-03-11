@@ -1,0 +1,131 @@
+<html>
+<head>
+<title>DataframeExample.scala</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: #999999; font-weight: normal; font-style: normal; }
+.s0 { color: rgb(0,0,0); }
+</style>
+</head>
+<BODY BGCOLOR="#ffffff">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+DataframeExample.scala</FONT>
+</center></TD></TR></TABLE>
+<pre>
+<a name="l1"><span class="ln">1    </span></a><span class="s0">package com.vishnu.spark.basics 
+<a name="l2"><span class="ln">2    </span></a> 
+<a name="l3"><span class="ln">3    </span></a>import org.apache.spark.sql.Row 
+<a name="l4"><span class="ln">4    </span></a>import org.apache.spark.sql.functions._ 
+<a name="l5"><span class="ln">5    </span></a>import org.apache.spark.SparkConf 
+<a name="l6"><span class="ln">6    </span></a>import org.apache.spark.SparkContext 
+<a name="l7"><span class="ln">7    </span></a>import org.apache.spark.sql.SQLContext 
+<a name="l8"><span class="ln">8    </span></a> 
+<a name="l9"><span class="ln">9    </span></a>/** 
+<a name="l10"><span class="ln">10   </span></a> * Data from https://archive.ics.uci.edu/ml/machine-learning-databases/housing/housing.data 
+<a name="l11"><span class="ln">11   </span></a> */ 
+<a name="l12"><span class="ln">12   </span></a>object DataframeExample { 
+<a name="l13"><span class="ln">13   </span></a> 
+<a name="l14"><span class="ln">14   </span></a>  def main(args: Array[String]): Unit = { 
+<a name="l15"><span class="ln">15   </span></a>    val conf = new SparkConf().setAppName(&quot;HouseData&quot;) 
+<a name="l16"><span class="ln">16   </span></a>    val sc = new SparkContext(conf) 
+<a name="l17"><span class="ln">17   </span></a>    val sqlContext = new SQLContext(sc) 
+<a name="l18"><span class="ln">18   </span></a> 
+<a name="l19"><span class="ln">19   </span></a>    import sqlContext.implicits._ 
+<a name="l20"><span class="ln">20   </span></a> 
+<a name="l21"><span class="ln">21   </span></a>    val peopleRDD = sc.parallelize(List((&quot;john&quot;, 40), (&quot;tom&quot;, 25), (&quot;adam&quot;, 29))) 
+<a name="l22"><span class="ln">22   </span></a>    val peopleDF = peopleRDD.toDF(&quot;name&quot;, &quot;age&quot;) 
+<a name="l23"><span class="ln">23   </span></a> 
+<a name="l24"><span class="ln">24   </span></a>    val houseData = sc.textFile(&quot;/spark_learning/housing.data.txt&quot;).map(x =&gt; { 
+<a name="l25"><span class="ln">25   </span></a>      val parts = x.trim.split(&quot;[ ]+&quot;) 
+<a name="l26"><span class="ln">26   </span></a>      val crime = if (parts(0).trim.equals(&quot;&quot;)) -1 else parts(0).toDouble 
+<a name="l27"><span class="ln">27   </span></a>      val zone = if (parts(1).trim.equals(&quot;&quot;)) -1 else parts(1).toDouble 
+<a name="l28"><span class="ln">28   </span></a>      val rooms = if (parts(5).trim.equals(&quot;&quot;)) -1 else parts(5).toDouble 
+<a name="l29"><span class="ln">29   </span></a>      val age = if (parts(6).trim.equals(&quot;&quot;)) -1 else parts(6).toDouble 
+<a name="l30"><span class="ln">30   </span></a>      HouseInfo(crime, zone, rooms, age) 
+<a name="l31"><span class="ln">31   </span></a>    }) 
+<a name="l32"><span class="ln">32   </span></a> 
+<a name="l33"><span class="ln">33   </span></a>    val houseDf = houseData.toDF 
+<a name="l34"><span class="ln">34   </span></a> 
+<a name="l35"><span class="ln">35   </span></a>    houseDf.show 
+<a name="l36"><span class="ln">36   </span></a> 
+<a name="l37"><span class="ln">37   </span></a>    //aggregation functions 
+<a name="l38"><span class="ln">38   </span></a>    houseDf.agg(avg(&quot;age&quot;)).show 
+<a name="l39"><span class="ln">39   </span></a>    /** 
+<a name="l40"><span class="ln">40   </span></a>     * +-----------------+ 
+<a name="l41"><span class="ln">41   </span></a>     * |         avg(age)| 
+<a name="l42"><span class="ln">42   </span></a>     * +-----------------+ 
+<a name="l43"><span class="ln">43   </span></a>     * |68.57490118577074| 
+<a name="l44"><span class="ln">44   </span></a>     * +-----------------+ 
+<a name="l45"><span class="ln">45   </span></a>     */ 
+<a name="l46"><span class="ln">46   </span></a>    houseDf.agg(avg(&quot;age&quot;), max(&quot;crime&quot;)).show 
+<a name="l47"><span class="ln">47   </span></a>    houseDf.agg(Map(&quot;age&quot; -&gt; &quot;avg&quot;, &quot;crime&quot; -&gt; &quot;max&quot;)).show 
+<a name="l48"><span class="ln">48   </span></a>    /** 
+<a name="l49"><span class="ln">49   </span></a>     * +-----------------+----------+ 
+<a name="l50"><span class="ln">50   </span></a>     * |         avg(age)|max(crime)| 
+<a name="l51"><span class="ln">51   </span></a>     * +-----------------+----------+ 
+<a name="l52"><span class="ln">52   </span></a>     * |68.57490118577074|   88.9762| 
+<a name="l53"><span class="ln">53   </span></a>     * +-----------------+----------+ 
+<a name="l54"><span class="ln">54   </span></a>     */ 
+<a name="l55"><span class="ln">55   </span></a> 
+<a name="l56"><span class="ln">56   </span></a>    //filter 
+<a name="l57"><span class="ln">57   </span></a>    houseDf.filter(&quot;age &gt; 50&quot;).show 
+<a name="l58"><span class="ln">58   </span></a> 
+<a name="l59"><span class="ln">59   </span></a>    //randomsplit  
+<a name="l60"><span class="ln">60   </span></a>    val splits = houseDf.randomSplit(Array(0.5, 0.5), 0l) 
+<a name="l61"><span class="ln">61   </span></a>    val part1 = splits(0) 
+<a name="l62"><span class="ln">62   </span></a>    val part2 = splits(1) 
+<a name="l63"><span class="ln">63   </span></a> 
+<a name="l64"><span class="ln">64   </span></a>    //joins 
+<a name="l65"><span class="ln">65   </span></a>    part1.join(part2).show 
+<a name="l66"><span class="ln">66   </span></a>    part1.join(part2, &quot;zone&quot;) 
+<a name="l67"><span class="ln">67   </span></a>    part1.join(part2, part1(&quot;zone&quot;) === part2(&quot;zone&quot;)) 
+<a name="l68"><span class="ln">68   </span></a>    part1.join(part2, part1(&quot;zone&quot;) &lt;=&gt; part2(&quot;zone&quot;)) //safe for null values 
+<a name="l69"><span class="ln">69   </span></a>    part1.join(part2, part1(&quot;zone&quot;) !== part2(&quot;zone&quot;)) 
+<a name="l70"><span class="ln">70   </span></a>    //http://spark.apache.org/docs/latest/api/scala/#org.apache.spark.sql.Column for info on conditions  
+<a name="l71"><span class="ln">71   </span></a> 
+<a name="l72"><span class="ln">72   </span></a>    //groupBy 
+<a name="l73"><span class="ln">73   </span></a>    houseDf.groupBy(&quot;zone&quot;).agg(avg(&quot;age&quot;)).show 
+<a name="l74"><span class="ln">74   </span></a>    houseDf.groupBy(houseDf(&quot;zone&quot;)).agg(avg(&quot;age&quot;)).show 
+<a name="l75"><span class="ln">75   </span></a> 
+<a name="l76"><span class="ln">76   </span></a>    //union 
+<a name="l77"><span class="ln">77   </span></a>    part1.unionAll(part2) 
+<a name="l78"><span class="ln">78   </span></a> 
+<a name="l79"><span class="ln">79   </span></a>    //select 
+<a name="l80"><span class="ln">80   </span></a>    houseDf.select(houseDf(&quot;age&quot;)).show 
+<a name="l81"><span class="ln">81   </span></a>    houseDf.select(&quot;age&quot;).show 
+<a name="l82"><span class="ln">82   </span></a>    houseDf.selectExpr(&quot;age&gt;60&quot;).show(5) 
+<a name="l83"><span class="ln">83   </span></a>    /** 
+<a name="l84"><span class="ln">84   </span></a>     * 
+<a name="l85"><span class="ln">85   </span></a>     * +----------+ 
+<a name="l86"><span class="ln">86   </span></a>     * |(age &gt; 60)| 
+<a name="l87"><span class="ln">87   </span></a>     * +----------+ 
+<a name="l88"><span class="ln">88   </span></a>     * |      true| 
+<a name="l89"><span class="ln">89   </span></a>     * |      true| 
+<a name="l90"><span class="ln">90   </span></a>     * |      true| 
+<a name="l91"><span class="ln">91   </span></a>     * |     false| 
+<a name="l92"><span class="ln">92   </span></a>     * |     false| 
+<a name="l93"><span class="ln">93   </span></a>     * +----------+ 
+<a name="l94"><span class="ln">94   </span></a>     */ 
+<a name="l95"><span class="ln">95   </span></a> 
+<a name="l96"><span class="ln">96   </span></a>    //sort,order 
+<a name="l97"><span class="ln">97   </span></a>    houseDf.sort(&quot;age&quot;) 
+<a name="l98"><span class="ln">98   </span></a>    houseDf.sort(desc(&quot;age&quot;)) 
+<a name="l99"><span class="ln">99   </span></a>    houseDf.sort($&quot;age&quot;.desc, $&quot;rooms&quot;.asc).show 
+<a name="l100"><span class="ln">100  </span></a> 
+<a name="l101"><span class="ln">101  </span></a>    houseDf.orderBy($&quot;age&quot;.desc).show 
+<a name="l102"><span class="ln">102  </span></a>    houseDf.orderBy($&quot;age&quot;).show 
+<a name="l103"><span class="ln">103  </span></a>    houseDf.orderBy(&quot;age&quot;) 
+<a name="l104"><span class="ln">104  </span></a>    houseDf.orderBy(desc(&quot;age&quot;)) 
+<a name="l105"><span class="ln">105  </span></a>    houseDf.orderBy(houseDf(&quot;age&quot;).desc).show 
+<a name="l106"><span class="ln">106  </span></a> 
+<a name="l107"><span class="ln">107  </span></a>    houseDf.toJSON.take(1) 
+<a name="l108"><span class="ln">108  </span></a>    //res164: Array[String] = Array({&quot;crime&quot;:0.00632,&quot;zone&quot;:18.0,&quot;rooms&quot;:6.575,&quot;age&quot;:65.2}) 
+<a name="l109"><span class="ln">109  </span></a> 
+<a name="l110"><span class="ln">110  </span></a>  } 
+<a name="l111"><span class="ln">111  </span></a> 
+<a name="l112"><span class="ln">112  </span></a>  case class HouseInfo(crime: Double, zone: Double, rooms: Double, age: Double) 
+<a name="l113"><span class="ln">113  </span></a>}</span></pre>
+</body>
+</html>

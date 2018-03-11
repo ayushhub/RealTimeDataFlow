@@ -1,0 +1,89 @@
+<html>
+<head>
+<title>BoltBuilder.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: #999999; font-weight: normal; font-style: normal; }
+.s0 { color: rgb(0,0,128); font-weight: bold; }
+.s1 { color: rgb(0,0,0); }
+.s2 { color: rgb(128,128,128); font-style: italic; }
+.s3 { color: rgb(128,128,128); font-weight: bold; font-style: italic; }
+.s4 { color: rgb(0,128,0); font-weight: bold; }
+.s5 { color: rgb(0,0,255); }
+</style>
+</head>
+<BODY BGCOLOR="#ffffff">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+BoltBuilder.java</FONT>
+</center></TD></TR></TABLE>
+<pre>
+<a name="l1"><span class="ln">1    </span></a><span class="s0">package </span><span class="s1">com.vishnu.storm.bolt; 
+<a name="l2"><span class="ln">2    </span></a> 
+<a name="l3"><span class="ln">3    </span></a></span><span class="s0">import </span><span class="s1">java.util.Properties; 
+<a name="l4"><span class="ln">4    </span></a> 
+<a name="l5"><span class="ln">5    </span></a></span><span class="s0">import </span><span class="s1">org.apache.storm.hdfs.bolt.HdfsBolt; 
+<a name="l6"><span class="ln">6    </span></a></span><span class="s0">import </span><span class="s1">org.apache.storm.hdfs.bolt.format.DefaultFileNameFormat; 
+<a name="l7"><span class="ln">7    </span></a></span><span class="s0">import </span><span class="s1">org.apache.storm.hdfs.bolt.format.DelimitedRecordFormat; 
+<a name="l8"><span class="ln">8    </span></a></span><span class="s0">import </span><span class="s1">org.apache.storm.hdfs.bolt.format.FileNameFormat; 
+<a name="l9"><span class="ln">9    </span></a></span><span class="s0">import </span><span class="s1">org.apache.storm.hdfs.bolt.format.RecordFormat; 
+<a name="l10"><span class="ln">10   </span></a></span><span class="s0">import </span><span class="s1">org.apache.storm.hdfs.bolt.rotation.FileRotationPolicy; 
+<a name="l11"><span class="ln">11   </span></a></span><span class="s0">import </span><span class="s1">org.apache.storm.hdfs.bolt.rotation.FileSizeRotationPolicy; 
+<a name="l12"><span class="ln">12   </span></a></span><span class="s0">import </span><span class="s1">org.apache.storm.hdfs.bolt.rotation.FileSizeRotationPolicy.Units; 
+<a name="l13"><span class="ln">13   </span></a></span><span class="s0">import </span><span class="s1">org.apache.storm.hdfs.bolt.sync.CountSyncPolicy; 
+<a name="l14"><span class="ln">14   </span></a></span><span class="s0">import </span><span class="s1">org.apache.storm.hdfs.bolt.sync.SyncPolicy; 
+<a name="l15"><span class="ln">15   </span></a> 
+<a name="l16"><span class="ln">16   </span></a></span><span class="s0">import </span><span class="s1">com.vishnu.storm.Keys; 
+<a name="l17"><span class="ln">17   </span></a> 
+<a name="l18"><span class="ln">18   </span></a></span><span class="s2">/** 
+<a name="l19"><span class="ln">19   </span></a> * </span><span class="s3">@author </span><span class="s2">vishnu viswanath 
+<a name="l20"><span class="ln">20   </span></a> * This class is used for building bolts 
+<a name="l21"><span class="ln">21   </span></a> */</span><span class="s1"> 
+<a name="l22"><span class="ln">22   </span></a></span><span class="s0">public class </span><span class="s1">BoltBuilder { 
+<a name="l23"><span class="ln">23   </span></a>     
+<a name="l24"><span class="ln">24   </span></a>    </span><span class="s0">public </span><span class="s1">Properties configs = </span><span class="s0">null</span><span class="s1">; 
+<a name="l25"><span class="ln">25   </span></a>     
+<a name="l26"><span class="ln">26   </span></a>    </span><span class="s0">public </span><span class="s1">BoltBuilder(Properties configs) { 
+<a name="l27"><span class="ln">27   </span></a>        </span><span class="s0">this</span><span class="s1">.configs = configs; 
+<a name="l28"><span class="ln">28   </span></a>    } 
+<a name="l29"><span class="ln">29   </span></a>     
+<a name="l30"><span class="ln">30   </span></a>    </span><span class="s0">public </span><span class="s1">SinkTypeBolt buildSinkTypeBolt() { 
+<a name="l31"><span class="ln">31   </span></a>        </span><span class="s0">return new </span><span class="s1">SinkTypeBolt(); 
+<a name="l32"><span class="ln">32   </span></a>    } 
+<a name="l33"><span class="ln">33   </span></a>     
+<a name="l34"><span class="ln">34   </span></a>    </span><span class="s0">public </span><span class="s1">MongodbBolt buildMongodbBolt() { 
+<a name="l35"><span class="ln">35   </span></a>        String host = configs.getProperty(Keys.MONGO_HOST); 
+<a name="l36"><span class="ln">36   </span></a>        </span><span class="s0">int </span><span class="s1">port = Integer.parseInt(configs.getProperty(Keys.MONGO_PORT)); 
+<a name="l37"><span class="ln">37   </span></a>        String db = configs.getProperty(Keys.MONGO_DATABASE); 
+<a name="l38"><span class="ln">38   </span></a>        String collection = configs.getProperty(Keys.MONGO_COLLECTION); 
+<a name="l39"><span class="ln">39   </span></a>        </span><span class="s0">return new </span><span class="s1">MongodbBolt(host, port, db, collection); 
+<a name="l40"><span class="ln">40   </span></a>    } 
+<a name="l41"><span class="ln">41   </span></a>     
+<a name="l42"><span class="ln">42   </span></a>    </span><span class="s0">public  </span><span class="s1">SolrBolt buildSolrBolt() { 
+<a name="l43"><span class="ln">43   </span></a>        String solrServerUlr = configs.getProperty(Keys.SOLR_SERVER); 
+<a name="l44"><span class="ln">44   </span></a>        String collection = configs.getProperty(Keys.SOLR_COLLECTION); 
+<a name="l45"><span class="ln">45   </span></a>        SolrBolt solrBolt = </span><span class="s0">new </span><span class="s1">SolrBolt(solrServerUlr+collection); 
+<a name="l46"><span class="ln">46   </span></a>        </span><span class="s0">return </span><span class="s1">solrBolt; 
+<a name="l47"><span class="ln">47   </span></a>    } 
+<a name="l48"><span class="ln">48   </span></a>     
+<a name="l49"><span class="ln">49   </span></a>    </span><span class="s0">public </span><span class="s1">HdfsBolt buildHdfsBolt() { 
+<a name="l50"><span class="ln">50   </span></a>        RecordFormat format = </span><span class="s0">new </span><span class="s1">DelimitedRecordFormat().withFieldDelimiter(</span><span class="s4">&quot;|&quot;</span><span class="s1">); 
+<a name="l51"><span class="ln">51   </span></a>        SyncPolicy syncPolicy = </span><span class="s0">new </span><span class="s1">CountSyncPolicy(</span><span class="s5">1</span><span class="s1">); 
+<a name="l52"><span class="ln">52   </span></a>        FileRotationPolicy rotationPolicy = </span><span class="s0">new </span><span class="s1">FileSizeRotationPolicy(</span><span class="s5">5.0f</span><span class="s1">, Units.MB); 
+<a name="l53"><span class="ln">53   </span></a>        FileNameFormat fileNameFormat = </span><span class="s0">new </span><span class="s1">DefaultFileNameFormat().withPath(configs.getProperty(Keys.HDFS_FOLDER)); 
+<a name="l54"><span class="ln">54   </span></a>        String port = configs.getProperty((Keys.HDFS_PORT)); 
+<a name="l55"><span class="ln">55   </span></a>        String host = configs.getProperty((Keys.HDFS_HOST)); 
+<a name="l56"><span class="ln">56   </span></a>        HdfsBolt bolt = </span><span class="s0">new </span><span class="s1">HdfsBolt() 
+<a name="l57"><span class="ln">57   </span></a>        .withFsUrl(</span><span class="s4">&quot;hdfs://&quot;</span><span class="s1">+host+</span><span class="s4">&quot;:&quot;</span><span class="s1">+port) 
+<a name="l58"><span class="ln">58   </span></a>        .withFileNameFormat(fileNameFormat) 
+<a name="l59"><span class="ln">59   </span></a>        .withRecordFormat(format) 
+<a name="l60"><span class="ln">60   </span></a>        .withRotationPolicy(rotationPolicy) 
+<a name="l61"><span class="ln">61   </span></a>        .withSyncPolicy(syncPolicy); 
+<a name="l62"><span class="ln">62   </span></a>        </span><span class="s0">return </span><span class="s1">bolt; 
+<a name="l63"><span class="ln">63   </span></a>    } 
+<a name="l64"><span class="ln">64   </span></a> 
+<a name="l65"><span class="ln">65   </span></a>} 
+<a name="l66"><span class="ln">66   </span></a></span></pre>
+</body>
+</html>
