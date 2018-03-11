@@ -1,21 +1,21 @@
-[![DASHBOARD](https://github.com/ayushhub/RealTimeDataFlow/blob/master/screenshots/39_zeppelin_country_pie_chart-800x202.png)]
+![DASHBOARD](https://github.com/ayushhub/RealTimeDataFlow/blob/master/screenshots/39_zeppelin_country_pie_chart-800x202.png)
 
 FOLLOW PRE-REQUISITES
 
 NEXT,
 The first thing you’re going to need if you haven’t done it already is install the Apache NiFi service on your Sandbox. Click on Actions button in the left sidebar on the Ambari Dashboard. Click on Add Service. Then from the list of services, choose NiFi. Then click next, and continue clicking next until you reach the page where a progress bar shows NiFi is being installed. If recommended configurations are not set, you can ignore them since they are for a production cluster, but we are building a demo on a sandbox. You should see NiFi installed successfully.
 
-[![DASHBOARD](https://github.com/ayushhub/RealTimeDataFlow/blob/master/screenshots/solr_install_success.png)]
+![DASHBOARD](https://github.com/ayushhub/RealTimeDataFlow/blob/master/screenshots/solr_install_success.png)
 
-[![DASHBOARD](https://github.com/ayushhub/RealTimeDataFlow/blob/master/screenshots/add_collection_tweets_sentiment_analysis.png)]
+![DASHBOARD](https://github.com/ayushhub/RealTimeDataFlow/blob/master/screenshots/add_collection_tweets_sentiment_analysis.png)
 
-[![DASHBOARD](https://github.com/ayushhub/RealTimeDataFlow/blob/master/screenshots/41_zeppelin_sentiment_average-800x468.png)]
+![DASHBOARD](https://github.com/ayushhub/RealTimeDataFlow/blob/master/screenshots/41_zeppelin_sentiment_average-800x468.png)
 
-[![DASHBOARD](https://github.com/ayushhub/RealTimeDataFlow/blob/master/screenshots/nifi.png)]
+![DASHBOARD](https://github.com/ayushhub/RealTimeDataFlow/blob/master/screenshots/nifi.png)
 
-[![DASHBOARD](https://github.com/ayushhub/RealTimeDataFlow/blob/master/screenshots/grab_garden.png)]
+![DASHBOARD](https://github.com/ayushhub/RealTimeDataFlow/blob/master/screenshots/grab_garden.png)
 
-[![DASHBOARD](https://github.com/ayushhub/RealTimeDataFlow/blob/master/screenshots/tweetsbi_bar_graph_sentiment_analysis-800x467.png)]
+![DASHBOARD](https://github.com/ayushhub/RealTimeDataFlow/blob/master/screenshots/tweetsbi_bar_graph_sentiment_analysis-800x467.png)
 
 ADD JAR /usr/hdp/2.5.0.0-1245/hive2/lib/json-serde-1.3.8-SNAPSHOT-jar-with-dependencies.jar;
 
